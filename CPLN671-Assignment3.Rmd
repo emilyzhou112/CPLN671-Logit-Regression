@@ -17,7 +17,7 @@ editor_options:
 
 Version 1.0 | First Created Nov 4, 2024 | Updated Nov , 2024
 
-Keywords: 
+Keywords: t-test, chi-square, multiple logistic regression, ROC, sensitivity, specificity
 
 GitHub Repository: [CPLN671-Logit-Regression](https://github.com/emilyzhou112/CPLN671-Logit-Regression)
 
@@ -31,10 +31,8 @@ knitr::opts_chunk$set(echo = TRUE)
 options(scipen=999)
 options(digits = 3)
 
-# List of required packages
-packages <- c("tidyverse", "sf", "here", "ggplot2", "kableExtra", "patchwork", "gmodels")
+packages <- c("tidyverse", "sf", "here", "ggplot2", "kableExtra", "patchwork", "gmodels", "ggcorrplot")
 
-# Install and load required packages
 package.check <- lapply(
   packages,
   FUN = function(x) {
@@ -62,7 +60,8 @@ prop.table(table(crashes$DRINKING_D))
 
 ```
 
-```{r crosstabulation, message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+```{r crosstabulation, message=FALSE, warning=FALSE, echo=TRUE, results='hide'}
+
 extract_crosstab_values <- function(var1, var2) {
 
   crosstab <- CrossTable(var1, var2, prop.r = FALSE, prop.chisq = FALSE, chisq = FALSE, prop.t = FALSE)
@@ -72,7 +71,7 @@ extract_crosstab_values <- function(var1, var2) {
   value_3 <- crosstab$t["0", "1"]                                   # Count where DRINKING_D = 0, other variable = 1
   value_4 <- (crosstab$t["0", "1"] / sum(crosstab$t["0",])) * 100   # Pct where DRINKING_D = 0, other variable = 1
   value_5 <- crosstab$t["1", "1"] + crosstab$t["0", "1"]            # Total count where other variable = 1
-  
+
   return(c(Value1 = value_1, Value2 = value_2, Value3 = value_3, Value4 = value_4, Value5 = value_5))
 }
 
@@ -85,32 +84,151 @@ tabulation <- data.frame(
   Value5 = numeric()
 )
 
+descriptions <- c(
+  FATAL_OR_M = "Crash resulted in fatality or major injury",
+  OVERTURNED = "Crash involved an overturned vehicle",
+  CELL_PHONE = "Driver was using cell phone",
+  SPEEDING = "Crash involved speeding car",
+  AGGRESSIVE = "Crash involved aggressive driving",
+  DRIVER1617 = "Crash involved at least one driver 16 or 17 years old",
+  DRIVER65PLUS = "Crash involved at least one driver over 65 years old"
+)
+
 variables <- c("FATAL_OR_M", "OVERTURNED", "CELL_PHONE", "SPEEDING", "AGGRESSIVE", "DRIVER1617", "DRIVER65PLUS")
 
 for (var in variables) {
   values <- extract_crosstab_values(crashes$DRINKING_D, crashes[[var]])
   
-  tabulation <- rbind(tabulation, data.frame(Variable = var, t(values)))
+  tabulation <- rbind(
+    tabulation,
+    data.frame(Variable = paste0(var, ": ", descriptions[[var]]), t(values))
+  )
 }
 
+colnames(tabulation) <- c("", "N", "%", "N ", "% ", "N  ")
+
+```
+
+
+```{r}
+tabulation %>%
+  kable("html", escape = FALSE, align = "lccccc") %>%
+  kable_styling(full_width = FALSE, position = "center", fixed_thead = TRUE) %>%
+  column_spec(1, width = "30em") %>%    # Wider first column for descriptions
+  column_spec(2, width = "5em") %>%
+  column_spec(3, width = "5em") %>%
+  column_spec(4, width = "5em") %>%
+  column_spec(5, width = "5em") %>%
+  column_spec(6, width = "5em") %>%
+  add_header_above(c(" " = 1, "DRINKING_D = 0" = 2, "DRINKING_D = 1" = 2, " " = 1)) %>% 
+  add_header_above(c(" " = 1, "No Alcohol" = 2, "Alcohol Involved" = 2, "Total" = 1))
 ```
 
 
 
 ```{r}
-temp$chisq$statistic
+
+tabulation$Chi_squared <- NA  
+tabulation$p_value <- NA
+
+for (i in seq_along(variables)) {
+  var <- variables[i]
+  chi_test <- chisq.test(table(crashes$DRINKING_D, crashes[[var]]), correct = FALSE)
+  tabulation$Chi_squared[i] <- round(chi_test$statistic, 2)
+  tabulation$p_value[i] <- round(chi_test$p.value, 5)
+}
+
+tabulation %>%
+  kable("html", escape = FALSE, align = "lcccccc") %>%
+  kable_styling(full_width = FALSE, position = "center", fixed_thead = TRUE) %>%
+  column_spec(1, width = "50em") %>%
+  column_spec(2, width = "5em") %>%
+  column_spec(3, width = "5em") %>%
+  column_spec(4, width = "5em") %>%
+  column_spec(5, width = "5em") %>%
+  column_spec(6, width = "5em") %>%
+  column_spec(7, width = "5em") %>%
+  column_spec(8, width = "5em") %>%
+  add_header_above(c(" " = 1, "DRINKING_D = 0" = 2, "DRINKING_D = 1" = 2, " " = 1, " " = 2)) %>% 
+  add_header_above(c(" " = 1, "No Alcohol" = 2, "Alcohol Involved" = 2, "Total" = 1, "χ2 Test" = 2))
 ```
 
 
 ```{r}
 
-temp <- CrossTable(crashes$DRINKING_D, crashes$FATAL_OR_M,prop.r=FALSE,prop.chisq=FALSE, chisq=TRUE,prop.t=FALSE)
-CrossTable(crashes$DRINKING_D, crashes$OVERTURNED,prop.r=FALSE,prop.chisq=FALSE, chisq=FALSE,prop.t=FALSE)
-CrossTable(crashes$DRINKING_D, crashes$CELL_PHONE,prop.r=FALSE,prop.chisq=FALSE, chisq=FALSE,prop.t=FALSE)
-CrossTable(crashes$DRINKING_D, crashes$SPEEDING,prop.r=FALSE,prop.chisq=FALSE, chisq=FALSE,prop.t=FALSE)
-CrossTable(crashes$DRINKING_D, crashes$AGGRESSIVE,prop.r=FALSE,prop.chisq=FALSE, chisq=FALSE,prop.t=FALSE)
-CrossTable(crashes$DRINKING_D, crashes$DRIVER1617,prop.r=FALSE,prop.chisq=FALSE, chisq=FALSE,prop.t=FALSE)
-CrossTable(crashes$DRINKING_D, crashes$DRIVER65PLUS,prop.r=FALSE,prop.chisq=FALSE, chisq=FALSE,prop.t=FALSE)
+mean_pctbachmor <- tapply(crashes$PCTBACHMOR, crashes$DRINKING_D, mean)
+sd_pctbachmor <- tapply(crashes$PCTBACHMOR, crashes$DRINKING_D, sd)
+mean_medhhinc <- tapply(crashes$MEDHHINC, crashes$DRINKING_D, mean)
+sd_medhhinc <- tapply(crashes$MEDHHINC, crashes$DRINKING_D, sd)
+
+tabulation_cont <- data.frame(
+  Variable = c("PCTBACHMOR: % with bachelor’s degree or more", "MEDHHINC: Median household income"),
+  Value1 = c(mean_pctbachmor["0"], mean_medhhinc["0"]),  # Mean for DRINKING_D = 0
+  Value2 = c(sd_pctbachmor["0"], sd_medhhinc["0"]),       # SD for DRINKING_D = 0
+  Value3 = c(mean_pctbachmor["1"], mean_medhhinc["1"]),  # Mean for DRINKING_D = 1
+  Value4 = c(sd_pctbachmor["1"], sd_medhhinc["1"])        # SD for DRINKING_D = 1
+)
+
+colnames(tabulation_cont) <- c("", "Mean", "SD", "Mean ", "SD ")
+
+tabulation_cont %>%
+  kable("html", escape = FALSE, align = "lcccccc") %>%
+  kable_styling(full_width = FALSE, position = "center", fixed_thead = TRUE) %>%
+  add_header_above(c(" " = 1, "DRINKING_D = 0" = 2, "DRINKING_D = 1" = 2)) %>% 
+  add_header_above(c(" " = 1, "No Alcohol" = 2, "Alcohol Involved" = 2))
+```
+
+
+```{r}
+
+pval_pctbachmor <- t.test(crashes$PCTBACHMOR ~ crashes$DRINKING_D)$p.value
+pval_medhhinc <- t.test(crashes$MEDHHINC ~ crashes$DRINKING_D)$p.value
+tabulation_cont$`t-test p-value` <- c(pval_pctbachmor, pval_medhhinc)  
+
+tabulation_cont %>%
+  kable("html", escape = FALSE, align = "lcccccc") %>%
+  kable_styling(full_width = FALSE, position = "center", fixed_thead = TRUE) %>%
+  add_header_above(c(" " = 1, "DRINKING_D = 0" = 2, "DRINKING_D = 1" = 2, " " =  1)) %>% 
+  add_header_above(c(" " = 1, "No Alcohol" = 2, "Alcohol Involved" = 2, " " = 1))
+```
+
+
+```{r fig.height=7, fig.width=7}
+
+cor_matrix <- cor(crashes %>% dplyr::select(-c(CRN, DRINKING_D, AREAKEY, COLLISION_)), use = "pairwise.complete.obs", method = "pearson")
+
+
+custom_label <- c(
+  "Crash resulted in fatality or major injury" = "FATAL_OR_M",
+  "Crash involved an overturned vehicle" = "OVERTURNED",
+  "Driver was using cell phone" = "CELL_PHONE",
+  "Crash involved speeding car" = "SPEEDING",
+  "Crash involved aggressive driving" = "AGGRESSIVE",
+  "Crash involved at least one driver 16 or 17 years old" = "DRIVER1617",
+  "Crash involved at least one driver over 65 years old" = "DRIVER65PLUS",
+  "% with bachelor’s degree" = "PCTBACHMOR",
+  "Median household income" = "MEDHHINC"
+)
+
+
+rownames(cor_matrix) <- names(custom_label)
+colnames(cor_matrix) <- names(custom_label)
+
+ggcorrplot(cor_matrix, 
+           type = "lower", 
+           lab = TRUE, 
+           lab_size = 3, 
+           colors = c("#283d3b", "white", "#c44536")) +
+  labs(title = "Correlation Matrix for all Predictor Variables") +
+  theme(plot.subtitle = element_text(size = 9, face = "italic"),
+        plot.title = element_text(size = 12, face = "bold"), 
+        axis.text.x = element_text(size = 7),
+        axis.text.y = element_text(size = 7), 
+        axis.title = element_text(size = 8))
+```
+
+
+```{r}
 
 ```
 
