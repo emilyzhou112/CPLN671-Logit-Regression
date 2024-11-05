@@ -1,11 +1,117 @@
 ---
-title: "Logistic Regression"
-author: "Emily Zhou"
-date: "2024-11-04"
-output: html_document
+title: "Predicting Car Crashes Caused by Alcohol Using Logistic Regression"
+author: "Emily Zhou, Ziyi Guo, Emma Jiang"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    theme: simplex
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+    code_download: yes
+
+editor_options:
+  markdown:
+    wrap: sentence
 ---
+
+Version 1.0 | First Created Nov 4, 2024 | Updated Nov , 2024
+
+Keywords: 
+
+GitHub Repository: [CPLN671-Logit-Regression](https://github.com/emilyzhou112/CPLN671-Logit-Regression)
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+
+```{r load packages, message=FALSE, warning=FALSE, include=FALSE}
+
+options(scipen=999)
+options(digits = 3)
+
+# List of required packages
+packages <- c("tidyverse", "sf", "here", "ggplot2", "kableExtra", "patchwork", "gmodels")
+
+# Install and load required packages
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE, quietly=TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+
+```
+
+
+```{r load data, message=FALSE, warning=FALSE, include=FALSE}
+
+crashes <- read.csv(here("data", "LogisticRegressionData.csv"))
+
+```
+
+
+```{r}
+
+table(crashes$DRINKING_D)
+prop.table(table(crashes$DRINKING_D))
+
+```
+
+```{r crosstabulation, message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+extract_crosstab_values <- function(var1, var2) {
+
+  crosstab <- CrossTable(var1, var2, prop.r = FALSE, prop.chisq = FALSE, chisq = FALSE, prop.t = FALSE)
+  
+  value_1 <- crosstab$t["1", "1"]                                   # Count where DRINKING_D = 1, other variable = 1
+  value_2 <- (crosstab$t["1", "1"] / sum(crosstab$t["1",])) * 100   # Pct where DRINKING_D = 1, other variable = 1
+  value_3 <- crosstab$t["0", "1"]                                   # Count where DRINKING_D = 0, other variable = 1
+  value_4 <- (crosstab$t["0", "1"] / sum(crosstab$t["0",])) * 100   # Pct where DRINKING_D = 0, other variable = 1
+  value_5 <- crosstab$t["1", "1"] + crosstab$t["0", "1"]            # Total count where other variable = 1
+  
+  return(c(Value1 = value_1, Value2 = value_2, Value3 = value_3, Value4 = value_4, Value5 = value_5))
+}
+
+tabulation <- data.frame(
+  Variable = character(),
+  Value1 = numeric(),
+  Value2 = numeric(),
+  Value3 = numeric(),
+  Value4 = numeric(),
+  Value5 = numeric()
+)
+
+variables <- c("FATAL_OR_M", "OVERTURNED", "CELL_PHONE", "SPEEDING", "AGGRESSIVE", "DRIVER1617", "DRIVER65PLUS")
+
+for (var in variables) {
+  values <- extract_crosstab_values(crashes$DRINKING_D, crashes[[var]])
+  
+  tabulation <- rbind(tabulation, data.frame(Variable = var, t(values)))
+}
+
+```
+
+
+
+```{r}
+temp$chisq$statistic
+```
+
+
+```{r}
+
+temp <- CrossTable(crashes$DRINKING_D, crashes$FATAL_OR_M,prop.r=FALSE,prop.chisq=FALSE, chisq=TRUE,prop.t=FALSE)
+CrossTable(crashes$DRINKING_D, crashes$OVERTURNED,prop.r=FALSE,prop.chisq=FALSE, chisq=FALSE,prop.t=FALSE)
+CrossTable(crashes$DRINKING_D, crashes$CELL_PHONE,prop.r=FALSE,prop.chisq=FALSE, chisq=FALSE,prop.t=FALSE)
+CrossTable(crashes$DRINKING_D, crashes$SPEEDING,prop.r=FALSE,prop.chisq=FALSE, chisq=FALSE,prop.t=FALSE)
+CrossTable(crashes$DRINKING_D, crashes$AGGRESSIVE,prop.r=FALSE,prop.chisq=FALSE, chisq=FALSE,prop.t=FALSE)
+CrossTable(crashes$DRINKING_D, crashes$DRIVER1617,prop.r=FALSE,prop.chisq=FALSE, chisq=FALSE,prop.t=FALSE)
+CrossTable(crashes$DRINKING_D, crashes$DRIVER65PLUS,prop.r=FALSE,prop.chisq=FALSE, chisq=FALSE,prop.t=FALSE)
+
+```
+
 
