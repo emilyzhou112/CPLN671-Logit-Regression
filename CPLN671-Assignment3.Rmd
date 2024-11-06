@@ -95,9 +95,8 @@ Also state that we can compare the means of continuous predictors for both value
 
 Present the tabulation of the dependent variable and comment on the number and proportion of crashes that involves drunk driving.
 
-```{r}
+```{r depedent crosstabulation, message=FALSE, warning=FALSE}
 
-table(crashes$DRINKING_D)
 depetab <- prop.table(table(crashes$DRINKING_D))
 deptab <- as.data.frame(depetab)
 colnames(deptab) <- c("DRINKING_D", "Proportion")
@@ -161,7 +160,8 @@ colnames(tabulation) <- c("", "N", "%", "N ", "% ", "N  ")
 
 
 
-```{r}
+```{r tabulation table, message=FALSE, warning=FALSE}
+
 tabulation %>%
   kable("html", escape = FALSE, align = "lccccc") %>%
   kable_styling(full_width = FALSE, position = "center", fixed_thead = TRUE) %>%
@@ -173,12 +173,13 @@ tabulation %>%
   column_spec(6, width = "5em") %>%
   add_header_above(c(" " = 1, "DRINKING_D = 0" = 2, "DRINKING_D = 1" = 2, " " = 1)) %>% 
   add_header_above(c(" " = 1, "No Alcohol" = 2, "Alcohol Involved" = 2, "Total" = 1))
+
 ```
 
 In the table, add (an) extra column(s) which presents the results of the Chi-Square test (you may present the p-value only, or the Chi-Square statistic, the degrees of freedom and the p-value).
 Discuss whether the Chi-Square test shows that there is a significant association between the dependent variable and each of the binary predictors (i.e., can you reject the Null Hypothesis?)
 
-```{r}
+```{r tabulation table chi-sq, message=FALSE, warning=FALSE}
 
 tabulation$Chi_squared <- NA  
 tabulation$p_value <- NA
@@ -207,7 +208,7 @@ tabulation %>%
 
 Present the means of the continuous predictors for both values of the dependent variable (table on p. 5).
 
-```{r}
+```{r tabulation cont, message=FALSE, warning=FALSE}
 
 mean_pctbachmor <- tapply(crashes$PCTBACHMOR, crashes$DRINKING_D, mean)
 sd_pctbachmor <- tapply(crashes$PCTBACHMOR, crashes$DRINKING_D, sd)
@@ -236,7 +237,7 @@ In the table, add an extra column which presents the results of the independent 
 Discuss whether the t-test shows that there is a significant association between the dependent variable and each of the
 continuous predictors (i.e., can you reject the Null Hypothesis?).
 
-```{r}
+```{r tabulation cont t-test, message=FALSE, warning=FALSE}
 
 pval_pctbachmor <- t.test(crashes$PCTBACHMOR ~ crashes$DRINKING_D)$p.value
 pval_medhhinc <- t.test(crashes$MEDHHINC ~ crashes$DRINKING_D)$p.value
@@ -254,7 +255,9 @@ tabulation_cont %>%
 Comment on which logistic regression assumptions are met and which ones are violated for the problem at hand.
 In particular, be sure to present the matrix showing the pairwise Pearson correlations for all the binary and continuous predictors.Comment on any potential limitations of using Pearson correlations to measure the associations between binary predictors. State whether there is evidence of multicollinearity, and remind the reader how you’re defining multicollinearity.
 
-```{r fig.height=7, fig.width=7}
+<div style="text-align: center;">
+
+```{r cor matrix, message=FALSE, warning=FALSE, fig.height=7, fig.width=7}
 
 cor_matrix <- cor(crashes %>% dplyr::select(-c(CRN, DRINKING_D, AREAKEY, COLLISION_)), use = "pairwise.complete.obs", method = "pearson")
 
@@ -288,12 +291,14 @@ ggcorrplot(cor_matrix,
         axis.title = element_text(size = 8))
 ```
 
+</div>
+
 ## Regression Analysis
 
 First, present the results of the logistic regression with all predictors. Interpret the results. Be sure to comment on whether each predictor is significant, and interpret the odds ratio for each predictor
 
 
-```{r}
+```{r logit 1, message=FALSE, warning=FALSE}
 
 logit <- glm(DRINKING_D ~ FATAL_OR_M + OVERTURNED + CELL_PHONE + SPEEDING + AGGRESSIVE + DRIVER1617 + DRIVER65PLUS + PCTBACHMOR + MEDHHINC, data = crashes, family = binomial)
 
@@ -309,19 +314,24 @@ logitcoeff <- logitoutput$coefficients
 or_ci <- exp(cbind(OR = coef(logit), confint(logit)))
 logitcoeff[, "Pr(>|z|)"] <- round(logitcoeff[, "Pr(>|z|)"], 4)
 final_output <- cbind(logitcoeff, or_ci)
-final_output
+final_output %>% 
+  kable("html", escape = FALSE, align = "cccccc") %>%
+  kable_styling(full_width = FALSE, position = "center", fixed_thead = TRUE)
 
 ```
 Present the specificity, sensitivity and the misclassification rates for the different probability cut-offs. Indicate the cut-offs which yield the lowest/highest misclassification rates.
 
-```{r}
+```{r roc measures, message=FALSE, warning=FALSE, include=FALSE}
+
+fit <- logit$fitted   
 a <- cbind(crashes$DRINKING_D, fit)
 colnames(a) <- c("labels", "predictions")
 roc <- as.data.frame(a)
+
 ```
 
 
-```{r}
+```{r calculate measures, message=FALSE, warning=FALSE}
 
 cutoffs <- c(0.02, 0.03, 0.05, 0.07, 0.08, 0.09, 0.10, 0.15, 0.20, 0.50)
 results <- data.frame(
@@ -358,21 +368,18 @@ for (i in seq_along(cutoffs)) {
   results$MisclassificationRate[i] <- metrics[3]
 }
 
-results
-```
-
-
-
-```{r}
-best_cutoff <- results$Cutoff[which.min(results$MisclassificationRate)]
-best_cutoff
+results %>% 
+  kable("html", escape = FALSE, align = "cccc") %>%
+  kable_styling(full_width = FALSE, position = "center", fixed_thead = TRUE)
 ```
 
 
 Present the ROC curve and comment on the optimal cut-off rate that was selected by minimizing the distance from the upper left corner of the ROC curve.
 Compare this cut-off rate with the optimal rate in 3.c.ii above. Keep in mind that in 3.c.ii, we’re looking at minimum mis-classification rates, and here, we’re looking at simultaneously minimizing both sensitivity and specificity.
 
-```{r}
+<div style="text-align: center;">
+
+```{r roc curve, message=FALSE, warning=FALSE}
 
 ggplot(roc, aes(d = labels, m = predictions)) +
   geom_roc(n.cuts = 50, labels = FALSE, colour = "#283d3b") +
@@ -389,35 +396,50 @@ ggplot(roc, aes(d = labels, m = predictions)) +
     panel.border = element_rect(colour = "grey", fill = NA, linewidth = 0.8)
   )
 ```
+</div>
 
-
-```{r}
+```{r measure optimal cut-off, message=FALSE, warning=FALSE}
 
 pred <- prediction(roc$predictions, roc$labels)
-roc.perf = performance(pred, measure = "tpr", x.measure="fpr")
+roc.perf <- performance(pred, measure = "tpr", x.measure = "fpr")
 
-opt.cut = function(perf, pred){
-  cut.ind = mapply(FUN=function(x, y, p){
-    d = (x - 0)^2 + (y-1)^2
-    ind = which(d == min(d))
-    c(sensitivity = y[[ind]], specificity = 1-x[[ind]], 
-      cutoff = p[[ind]])
+opt.cut <- function(perf, pred) {
+  cut.ind <- mapply(FUN = function(x, y, p) {
+    d <- (x - 0)^2 + (y - 1)^2
+    ind <- which(d == min(d))
+    c(sensitivity = y[[ind]], specificity = 1 - x[[ind]], cutoff = p[[ind]])
   }, perf@x.values, perf@y.values, pred@cutoffs)
+  
+  cut.df <- data.frame(
+    sensitivity = cut.ind[1, ],
+    specificity = cut.ind[2, ],
+    cutoff = cut.ind[3, ]
+  )
+  rownames(cut.df) <- NULL
+  return(cut.df)
 }
 
-print(opt.cut(roc.perf, pred))
+optimal_cutoffs_df <- opt.cut(roc.perf, pred)
+optimal_cutoffs_df %>% 
+  kable("html", escape = FALSE, align = "ccc") %>%
+  kable_styling(full_width = FALSE, position = "center", fixed_thead = TRUE)
+
+
 ```
 Also present and comment on the area under the ROC curve. What does it tell us about our model?
 
-```{r}
-auc.perf = performance(pred, measure ="auc")
-auc.perf@y.values
+```{r auc, message=FALSE, warning=FALSE}
+
+auc.perf <-  performance(pred, measure ="auc")
+auc.value <- auc.perf@y.values
+cat(sprintf("AUC: %.3f\n", auc.value))
+
 ```
 
 Finally, present the results of the logistic regression with the binary predictors only (i.e., without PCTBACHMOR and MEDHHINC). Compare the results of this regression with the results of the first regression: are there any predictors which are significant in the new model which weren’t significant in the original one, or vice versa?
 Be sure to also present the Akaike Information Criterion (AIC) for both models and indicate which model is better.
 
-```{r}
+```{r logit 2, message=FALSE, warning=FALSE}
 
 logit2 <- glm(DRINKING_D ~ FATAL_OR_M + OVERTURNED + CELL_PHONE + SPEEDING + AGGRESSIVE + DRIVER1617 + DRIVER65PLUS, data = crashes, family = binomial)
 
@@ -425,19 +447,28 @@ summary(logit2)
 
 ```
 
-```{r report result, warning=FALSE, message=FALSE}
+```{r report result for second reg, warning=FALSE, message=FALSE}
 
 logitoutput2 <- summary(logit2)
 logitcoeff2 <- logitoutput2$coefficients
 or_ci2 <- exp(cbind(OR = coef(logit2), confint(logit2)))
 logitcoeff2[, "Pr(>|z|)"] <- round(logitcoeff2[, "Pr(>|z|)"], 4)
 final_output2 <- cbind(logitcoeff2, or_ci2)
-final_output2
+final_output2 %>% 
+  kable("html", escape = FALSE, align = "cccccc") %>%
+  kable_styling(full_width = FALSE, position = "center", fixed_thead = TRUE)
+
 
 ```
 
-```{r}
-AIC(logit, logit2)
+```{r comparison, message=FALSE, warning=FALSE}
+
+aic_table <- AIC(logit, logit2)
+colnames(aic_table) <- c("Degree of Freedom", "AIC")
+rownames(aic_table) <- c("Model 1: All Predictors", "Model 2: Binary Predictors Only")
+aic_table %>% 
+  kable("html", escape = FALSE, align = "cc") %>%
+  kable_styling(full_width = FALSE, position = "center", fixed_thead = TRUE)
 ```
 
 # Discussion
