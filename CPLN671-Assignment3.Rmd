@@ -54,7 +54,7 @@ crashes <- read.csv(here("data", "LogisticRegressionData.csv"))
 ```
 
 
-# Introduction
+# Introduction -- Ziyi
 
 State the problem, the importance of the problem, and the setting of the analysis (Philadelphia)
 Speculate as to why the predictors we’re using might be associated with the response variable.
@@ -63,7 +63,7 @@ Indicate that you will be using R to run logistic regression for the analysis.
 
 # Methods
 
-*a) Explain the problems with using OLS regression when the dependent variable is binary*
+## Issues with OLS
 
 Using Ordinary Least Squares (OLS) regression for a binary dependent variable poses several issues. First, recall below the equation of OLS regression: 
 
@@ -73,9 +73,9 @@ $$
 
 Here, \( \beta_1 \) is interpreted as the amount by which the dependent variable \( y \) changes for a one-unit change in the independent variable \( x_1 \), holding all other variables constant. However, when the dependent variable is binary, a one unit increase in \( x_1 \) results in \( \beta_1 \) increase in \( y \) no longer makes sense, as \( y \) can change only from 0 to 1 or from 1 to 0. This leads to some interpretation issues if we use OLS regression for binary dependent variables.
 
-Second, OLS regression assumes a linear relationship between the independent variables and the dependent variable. With a binary dependent variable, this assumption does not hold, as binary outcomes (0 or 1) are inherently nonlinear. Third, OLS assumes normally distributed residuals (errors), but with a binary outcome, the residuals are not normally distributed. Instead, they follow a binomial distribution. This makes OLS estimation inefficient, as it cannot account for the specific distribution of binary outcomes. On top of these, with binary data, the variance of the error term is not constant; it varies with the predicted probability, leading to heteroscedasticity. This affects the reliability of standard errors and confidence intervals in OLS regression, leading to potentially incorrect inferences.
+Second, OLS regression assumes a linear relationship between the independent variables and the dependent variable. With a binary dependent variable, this assumption does not hold, as binary outcomes (0 or 1) are inherently nonlinear. Third, OLS assumes normally distributed residuals (errors), but with a binary outcome, the residuals are not normally distributed. Instead, they follow a binomial distribution. This makes OLS estimation inefficient, as it cannot account for the specific distribution of binary outcomes. On top of these, with binary data, the variance of the error term is not constant; it varies with the predicted probability, leading to heteroscedasticity. This affects the reliability of standard errors and confidence intervals in OLS regression, leading to potentially incorrect inferences. The assumpstions that apply to logistic regression will be elaborated below. 
 
-*b) Explain how logistic regression works around these issues.*
+## Logistic Regression Concepts
 
 Logistic regression provides a way for us to get around the above-mentioned issues. Instead of predicting the \( y \) value, we predict the probability of \( y \) being 1. This can be explained through the concept of odds. The **odds** of an event is a ratio that compares the likelihood of the event happening to the likelihood of it not happening. Mathematically, odds are calculated as:
 
@@ -136,31 +136,138 @@ The logistic function is the type of translator function we are looking for. It 
 Overall, it works  well for binary models because it restricts predicted probabilities to a range of 0 and 1, which is required in binary classification tasks.Each coefficient \( \beta_i \) represents the effect of a predictor on the log-odds of the outcome, which can be transformed to interpret effects on probabilities.
   
 
+## Logistic Regression Hypothesis
 
-*c) Describe the hypothesis that is tested for each predictor*
-State the null and alternative hypotheses
-Talk about the Wald statistic and the distribution that it follows
-State that rather than looking at the estimated 𝛽 coefficients, most statisticians prefer to look at odds ratios, which are calculated by exponentiating the coefficients.
+For each predictor in our logistic regression model, we want to test whether the predictor has a statistically significant effect on the likelihood of the outcome. 
 
-d) Talk about how you assess the quality of model fit.
-Mention that an R-squared may be calculated for logistic regression, however it is no longer a very useful metric and doesn’t have the same interpretation as in OLS.
-Talk about the Akaike Information Criterion to compare models. In one sentence describe what the AIC is (if the information in the slides isn’t sufficient, I suggest Googling it or looking at Wikipedia), and state whether a lower AIC is indicative of a better or worse fit.
-Explain what is meant by specificity, sensitivity and the misclassification rate, and describe how each quantity is calculated. Are higher or lower values of each quantity better or worse? In your explanation, be sure to mention about how fitted (predicted) values of 𝑦, i.e., 𝑦are calculated and interpreted in logistic regression. Indicate why you should try using different cut-offs for what is considered a “high” probability of 𝑌 = 1 when calculating the specificity, sensitivity and the misclassification rate. Explain what the ROC curve is. Be sure to talk about some
-methods for calculating the optimal cut-off using the ROC curve, and specify which one you will be using in this report. Also, explain what we get by calculating the area under the ROC curve, and what might be value ranges for excellent, good, fair, poor and failing models.
+The  **Null Hypothesis** (\( H_0 \)), which states that the predictor has no effect on the outcome, can be written as: 
 
-e) Talk about the assumptions of logistic regression. Which assumptions of OLS regression also hold for logistic regression, and which don’t?
+$$
+H_0 : \beta_i = 0
+$$
+
+The **Alternative Hypothesis** (\( H_a \)) which states that the predictor has significant effect on the outcome, can be written as: 
+
+$$
+H_a : \beta_i \neq 0
+$$
+
+To test these hypotheses, we use the **Wald statistic** for each coefficient \( \beta_i \). The Wald statistic is calculated as:
+
+$$
+W_i = \frac{\hat{\beta}_i}{\sigma(\hat{\beta}_i)}
+$$
+
+where \( \hat{\beta}_i \) is the estimated coefficient for predictor, and \( \sigma(\hat{\beta}_i) \) is the standard error of this estimate. Under the null hypothesis, the Wald statistic approximately follows a standard normal distribution \( N(0, 1) \). Large values of \( |W_i| \) indicate that \( \beta_i \) is significantly different from zero, leading us to reject the null hypothesis.
+
+However, rather than looking at the estimated \( \beta \) coefficients, most statisticians still prefer to look at **odds ratios**. The odds ratio is calculated by exponentiating the coefficients. For example, if the odds ratio for a predictor is 1.5, it means that the odds of the outcome happening are 1.5 times higher for a one-unit increase in the predictor. An odds ratio greater than 1 indicates that the predictor is associated with an increased likelihood of the outcome, while an odds ratio less than 1 indicates a decreased likelihood.
+
+## Logistic Regression Model Assessment
+ 
+In logistic regression, there are several ways to assess the quality of the model fit. While \( R^2 \) is commonly used in OLS to measure the proportion of variance explained by the model, it is not directly applicable to logistic regression. Although a pseudo-\( R^2 \) statistic can be calculated for logistic regression (e.g., McFadden's \( R^2 \)), it does not have the same interpretation as in OLS regression and is not as widely used for model assessment.
+
+A better alternative for comparing models is the **Akaike Information Criterion** (AIC). The AIC is a measure that penalizes models for complexity (i.e., the number of predictors) and rewards goodness of fit. It is defined as:
+
+$$
+\text{AIC} = 2k - 2\ln(\hat{L})
+$$
+
+where \( k \) is the number of parameters in the model, and \( \hat{L} \) is the maximum likelihood of the model. Lower AIC values indicate a better fit, as they balance the trade-off between model complexity and goodness of fit.
+
+An even better way to assess the quality of the model is to compute the specificity, sensitivity and the misclassification rate, and then the AUC value. To do that, we first need to calculate the predicted values of \( y \). The predicted values \( \hat{y} \) are calculated as:
 
 
-f) Describe the exploratory analyses that statisticians may want to do before running logistic regression.
-Talk about running the cross-tabulations between the dependent variable and binary predictors to see whether there is an association between the two variables. Say that the appropriate statistical test for examining the
-association between two categorical variables is the Chi-Square test. Be sure to mention the null and alternative hypotheses for the test.
+$$
+\text{P(y=1)} = \hat{y} = \frac{1}{1 + \exp(-\hat{\beta}_0 - \hat{\beta}_1x_1 - \dots - \hat{\beta}_kx_k)}
+$$
+where \( \hat{y} \) represents the predicted probability of the outcome being \( y = 1 \).
 
-Also state that we can compare the means of continuous predictors for both values of the dependent variable. Say that the independent samples t-tests are the appropriate statistical tests for examining whether there were significant differences in mean values of PCTBACHMOR and MEDHHINC for crashes that involved alcohol and those that didn’t. Mention the null and alternative hypotheses for the t-test.
+After obtaining the predicted probabilities, we apply a threshold (cut-off) to classify predictions into binary outcomes (e.g. classify \( \hat{y} > 0.5 \) as \( y = 1 \), and \( \hat{y} \leq 0.5 \) as \( y = 0 \)). It is important to note that the choice of cut-off value (i.e., threshold for classifying \( y = 1 \)) impacts the specificity, sensitivity, and misclassification rate. The default threshold of 0.5 may not always be optimal. Using different cut-offs allows for a trade-off between sensitivity and specificity. For example, a lower cut-off might increase sensitivity at the expense of specificity, and vice versa. 
+
+Then, we could calculate the **sensitivity** and **specificity** of the model. Sensitivity is the proportion of true positives (actual positives correctly predicted as positives), while specificity is the proportion of true negatives (actual negatives correctly predicted as negatives). The **misclassification rate** is the proportion of incorrect predictions made by the model. They are calculated as:
+
+$$
+\text{Sensitivity} = \frac{TP}{TP + FN}
+$$
+where \( TP \) is the number of true positives and \( FN \) is the number of false negatives. Higher sensitivity values are better, as they indicate that the model is good at identifying the positive class.
+
+$$
+\text{Specificity} = \frac{TN}{TN + FP}
+$$
+
+where \( TN \) is the number of true negatives and \( FP \) is the number of false positives. Higher specificity values are better, as they indicate that the model is good at identifying the negative class.
+
+$$
+\text{Misclassification Rate} = \frac{FP + FN}{TP + TN + FP + FN}
+$$
+
+Lower misclassification rates are better, as they indicate fewer errors in classification.
+
+Different cutoff can lead to different sensitivity, specificity and misclassification rates.To determine the optimal cut-off for classification, we can calculate the **Youden's Index**, which is defined as:
+
+$$
+J = \text{Sensitivity} + \text{Specificity} - 1
+$$
+Alternatively, we can use the **ROC curve** to visualize the trade-off between sensitivity and specificity at different cut-off values, and find a cut-off for which the ROC curve has the minimum distance from the upper left corner of the graph (the point at which sensitivity and specificity are both 1). We implement this 
+
+To provide more cotext, the **ROC curve** is then a graphical representation of a classifier's performance, plotting **sensitivity** (true positive rate) on the y-axis against **1 - specificity** (false positive rate) on the x-axis for different threshold values. The ROC curve helps visualize the trade-off between sensitivity and specificity at various cut-offs. 
+
+Based on the ROC curve, we can calculate the **Area Under the Curve** (AUC) to quantify the model's performance. Area under ROC Curve is a measure of prediction accuracy of the model (how well a model predicts 1 responses as 1’s and 0 responses as 0’s). The AUC ranges from 0 to 1, with higher values indicating better model performance. An AUC of 0.5 suggests that the model is no better than random guessing, while an AUC of 1 indicates perfect classification. Higher AUCs mean that we can find a cut-off value for which both sensitivity and specificity of the model are relatively high. Typically: 
+
+- \( \text{AUC} = 1 \): Perfect model
+- \( \text{AUC} = 0.9 \): Excellent model
+- \( \text{AUC} = 0.8 \): Good model
+- \( \text{AUC} = 0.7 \): Fair model
+- \( \text{AUC} = 0.5 \): Poor model (random classifier)
+- \( \text{AUC} < 0.5 \): Failing model (worse than random)
+
+## Logistic Regression Assumptions
+
+Logistic regression shares some assumptions with OLS regression, but it also has unique assumptions that accommodate the binary nature of the dependent variable. Below, we outline which assumptions of OLS regression also hold for logistic regression and which do not.
+
+First, just like in OLS regression, logistic regression assumes that **observations are independent** of each other. This means that each data point (or case) should not influence another.
+
+Second, similar to OLS regression, logistic regression assumes that there is **no perfect multicollinearity** among the independent variables. Perfect multicollinearity means that one predictor is an exact linear combination of others, which can lead to instability in the model coefficients.
+
+Third, OLS regression assumes homoscedasticity, meaning the residuals (errors) have constant variance across all levels of the independent variables. In logistic regression, this assumption does not apply because the error terms are not normally distributed; instead, they follow a binomial distribution.
+
+Fourth, in OLS, we assume that the residuals are normally distributed. In logistic regression, however, the errors do not need to follow a normal distribution because the model uses a binomial distribution instead of normal distribution for the response variable.
+
+And lastly, logistic regression does not assume a linear relationship between the dependent variable and each independent variable, unlike OLS regression. Instead, dependent variable must be binary. Logistic regression assumes that the log odds of the dependent variable being 1 is linearly related to each independent variable. This is a unique assumption of logistic regression that does not apply to OLS regression.
+
+As a special note, logistic regression requires a sample size of at least 50. This is because logistic regression uses Maximum Likelihood Estimation (MLE) to estimate regression coefficients, which requires a larger sample size than OLS regression. 
+
+## Exploratory Analysis Ideas
+ 
+Before running logistic regression, we also need to conduct exploratory analyses to understand the relationships between the dependent variable and the predictors. 
+
+For binary predictors, we run cross-tabulations with the dependent variable, which in this case is \( \text{DRINKING_D}\). This provides us with counts for each combination of values for \( \text{DRINKING_D}\) and a binary predictor, allowing us to observe potential associations. The **Chi-Square test** is the appropriate statistical test for assessing associations between two categorical variables. The null hypothesis \( H_0 \) for the Chi-Square test is that: 
+
+$$
+H_0: \text{There is no association between the binary predictor and DRINKING_D.}
+$$
+
+The alternative hypothesis is that: 
+
+$$
+H_a: \text{There is an association between the binary predictor and DRINKING\_D.}
+$$
+
+For continuous predictors, we calculate the means of the continuous predictors for both values of the dependent variable. We compare the mean values of \( \text{PCTBACHMOR}\) and \( \text{MEDHHINC}\) for crashes involving alcohol versus those that didn’t. The **independent samples t-test** is used to test whether there is a significant difference in mean values of a continuous predictor between two groups of a binary outcome.  The null hypothesis \( H_0 \) for the t-test is that: 
+
+$$
+H_0: \text{There is no difference in the means of the continuous predictor for crashes that involved alcohol and those that did not.}
+$$
+The alternative hypothesis is that: 
+
+$$
+H_a: \text{There is a significant difference in the means of the continuous predictor for crashes that involved alcohol and those that did not.}
+$$
 
 
 # Results 
 
-## Exploratory Analysis
+## Exploratory Analysis -- Emma
 
 Present the tabulation of the dependent variable and comment on the number and proportion of crashes that involves drunk driving.
 
@@ -319,7 +426,7 @@ tabulation_cont %>%
   add_header_above(c(" " = 1, "No Alcohol" = 2, "Alcohol Involved" = 2, " " = 1))
 ```
 
-## Regression Assumptions
+## Regression Assumptions -- Ziyi
 
 Comment on which logistic regression assumptions are met and which ones are violated for the problem at hand.
 In particular, be sure to present the matrix showing the pairwise Pearson correlations for all the binary and continuous predictors.Comment on any potential limitations of using Pearson correlations to measure the associations between binary predictors. State whether there is evidence of multicollinearity, and remind the reader how you’re defining multicollinearity.
@@ -362,7 +469,7 @@ ggcorrplot(cor_matrix,
 
 </div>
 
-## Regression Analysis
+## Regression Analysis -- Emily (logit1), Ziyi (logit2)
 
 First, present the results of the logistic regression with all predictors. Interpret the results. Be sure to comment on whether each predictor is significant, and interpret the odds ratio for each predictor
 
@@ -388,6 +495,7 @@ final_output %>%
   kable_styling(full_width = FALSE, position = "center", fixed_thead = TRUE)
 
 ```
+
 Present the specificity, sensitivity and the misclassification rates for the different probability cut-offs. Indicate the cut-offs which yield the lowest/highest misclassification rates.
 
 ```{r roc measures, message=FALSE, warning=FALSE, include=FALSE}
@@ -495,6 +603,7 @@ optimal_cutoffs_df %>%
 
 
 ```
+
 Also present and comment on the area under the ROC curve. What does it tell us about our model?
 
 ```{r auc, message=FALSE, warning=FALSE}
@@ -507,6 +616,9 @@ cat(sprintf("AUC: %.3f\n", auc.value))
 
 Finally, present the results of the logistic regression with the binary predictors only (i.e., without PCTBACHMOR and MEDHHINC). Compare the results of this regression with the results of the first regression: are there any predictors which are significant in the new model which weren’t significant in the original one, or vice versa?
 Be sure to also present the Akaike Information Criterion (AIC) for both models and indicate which model is better.
+
+
+
 
 ```{r logit 2, message=FALSE, warning=FALSE}
 
@@ -540,4 +652,18 @@ aic_table %>%
   kable_styling(full_width = FALSE, position = "center", fixed_thead = TRUE)
 ```
 
-# Discussion
+# Discussion -- Emma
+
+In a couple sentences, recap what you did in the paper, and your findings.
+
+Which variables are strong predictors of crashes that involve drunk driving? Which variables aren’t associated with the dependent variable?
+
+Are the results surprising? Discuss, and mention whether the variables you expect to be significant actually are significant, and if so, whether the relationships with the dependent variable are in the direction you would
+expect.
+
+Is logistic regression appropriate here? In other words, would the modeling rare events methods proposed by Paul Allison be more
+appropriate here?
+
+Hint: look at the # and % of cases with values of ‘1’ for the dependent variable.
+
+What are some limitations of the analysis? Discuss.
