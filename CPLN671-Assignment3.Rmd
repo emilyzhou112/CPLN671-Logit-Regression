@@ -5,6 +5,7 @@ date: "`r Sys.Date()`"
 output:
   html_document:
     theme: simplex
+    mathjax: default
     toc: yes
     toc_float: yes
     code_folding: hide
@@ -62,13 +63,81 @@ Indicate that you will be using R to run logistic regression for the analysis.
 
 # Methods
 
-a) Explain the problems with using OLS regression when the dependent variable is binary
+*a) Explain the problems with using OLS regression when the dependent variable is binary*
 
-b) Explain how logistic regression works around these issues.
-Prior to diving into logistic regression, introduce the concept of odds. Explain what an odds ratio is, and how it may be interpreted.
-Present the regression equation for the logit model with multiple predictors. Present the regression equation in both the logit form and the logistic form. In the formulas in (a) above, instead of writing 𝑌, 𝑥1… 𝑥𝑘, etc., write the names of the dependent and independent variables used in our actual model. Be sure to explain every term in each equation and talk about the logit and logistic functions (feel free to use the graphs in the slides as part of your explanation). Specifically, talk about the properties of the logistic function and explain why the logistic function works well for models where the dependent variable is binary.
+Using Ordinary Least Squares (OLS) regression for a binary dependent variable poses several issues. First, recall below the equation of OLS regression: 
 
-c) Describe the hypothesis that is tested for each predictor
+$$
+y = \beta_0 + \beta_1x_1 + \beta_2x_2 + ... + \beta_kx_k + \epsilon
+$$
+
+Here, \( \beta_1 \) is interpreted as the amount by which the dependent variable \( y \) changes for a one-unit change in the independent variable \( x_1 \), holding all other variables constant. However, when the dependent variable is binary, a one unit increase in \( x_1 \) results in \( \beta_1 \) increase in \( y \) no longer makes sense, as \( y \) can change only from 0 to 1 or from 1 to 0. This leads to some interpretation issues if we use OLS regression for binary dependent variables.
+
+Second, OLS regression assumes a linear relationship between the independent variables and the dependent variable. With a binary dependent variable, this assumption does not hold, as binary outcomes (0 or 1) are inherently nonlinear. Third, OLS assumes normally distributed residuals (errors), but with a binary outcome, the residuals are not normally distributed. Instead, they follow a binomial distribution. This makes OLS estimation inefficient, as it cannot account for the specific distribution of binary outcomes. On top of these, with binary data, the variance of the error term is not constant; it varies with the predicted probability, leading to heteroscedasticity. This affects the reliability of standard errors and confidence intervals in OLS regression, leading to potentially incorrect inferences.
+
+*b) Explain how logistic regression works around these issues.*
+
+Logistic regression provides a way for us to get around the above-mentioned issues. Instead of predicting the \( y \) value, we predict the probability of \( y \) being 1. This can be explained through the concept of odds. The **odds** of an event is a ratio that compares the likelihood of the event happening to the likelihood of it not happening. Mathematically, odds are calculated as:
+
+$$
+\text{Odds} = \frac{\text{Probability of Event Happening}}{\text{Probability of Event Not Happening}} = \frac{p}{1 - p}
+$$
+For example, if there is a 70% chance of an event happening (probability \( p = 0.7 \)), the odds would be:
+
+$$
+\text{Odds} = \frac{0.7}{1 - 0.7} = \frac{0.7}{0.3} = 2.33
+$$
+
+This means the event is 2.33 times more likely to happen than not happen. In logistic regression, instead of predicting the probability directly, we predict the **log-odds** (also called the **logit**) of the outcome. The logit model with multiple predictors is given by:
+
+$$
+\log \left( \frac{p}{1 - p} \right) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_k x_k
+$$
+In our specific case, it can be written as: 
+
+$$
+\log \left( \frac{P(\text{DRINKING_D} = 1)}{1 - P(\text{DRINKING_D} = 1)} \right) = \beta_0 + \beta_1 \cdot \text{FATAL_OR_M} + \beta_2 \cdot \text{OVERTURNED} + \dots + \beta_9 \cdot \text{MEDHHINC}
+$$
+
+where \( P(\text{DRINKING_D} = 1) \) is the probability that drinking was involved in a crash. \( \log \left( \frac{P(\text{DRINKING_D} = 1)}{1 - P(\text{DRINKING_D} = 1)} \right) \) is the log-odds of drinking involvement. \( \beta_0 \) is the intercept, representing the log-odds of drinking being involved when all predictors are zero. \( \beta_1, \beta_2, \dots, \beta_9 \) are the coefficients for each predictor variable, indicating the change in log-odds for a one-unit increase in each predictor.
+
+The predictor variable in the model is defined as follows:
+
+- **FATAL_OR_M**: Indicator for whether the crash involved a fatality.
+
+- **OVERTURNED**: Indicator for whether the crash involved an overturned vehicle.
+
+- **CELL_PHONE**: Indicator for whether a cell phone was in use.
+
+- **SPEEDING**: Indicator for whether speeding was a factor in the crash.
+
+- **AGGRESSIVE**: Indicator for whether aggressive driving was involved.
+
+- **DRIVER1617**: Indicator for whether the driver was between 16-17 years old.
+
+- **DRIVER65PLUS**: Indicator for whether the driver was 65 years or older.
+
+- **PCTBACHMOR**: Percentage of people in the area with a bachelor's degree or more.
+
+- **MEDHHINC**: Median household income in the area.
+
+The **Logistic Function**: The logistic function is the **inverse** of the logit function. It takes the linear predictor (log-odds) and converts it back to a probability, ensuring that the output is within the range \( [0, 1] \). This transformation is ideal for modeling binary outcomes because it naturally maps any linear predictor onto a probability scale. The logistic function is given by:
+
+$$
+P(\text{DRINKING_D} = 1) = \frac{1}{1 + e^{-(\beta_0 + \beta_1 \cdot \text{FATAL_OR_M} + \dots + \beta_9 \cdot \text{MEDHHINC})}}
+$$
+
+The logistic function is the type of translator function we are looking for. It has an **S-shaped (sigmoid) curve** with the following properties:
+
+- **Bounded Output**: As the linear predictor approaches \( +\infty \), the probability \( P(\text{DRINKING\_D} = 1) \) approaches 1. As the predictor approaches \( -\infty \), the probability approaches 0, ensuring the output is within the valid probability range \([0, 1]\).
+  
+- **Symmetry**: The logistic function is symmetric around 0.5, meaning that when the linear predictor is 0 (i.e., \( \beta_0 + \beta_1 \cdot \text{FATAL_OR_M} + \dots + \beta_9 \cdot \text{MEDHHINC} = 0 \)), the probability is 0.5. This midpoint is useful in binary classification as it helps interpret probabilities around 50%.
+
+Overall, it works  well for binary models because it restricts predicted probabilities to a range of 0 and 1, which is required in binary classification tasks.Each coefficient \( \beta_i \) represents the effect of a predictor on the log-odds of the outcome, which can be transformed to interpret effects on probabilities.
+  
+
+
+*c) Describe the hypothesis that is tested for each predictor*
 State the null and alternative hypotheses
 Talk about the Wald statistic and the distribution that it follows
 State that rather than looking at the estimated 𝛽 coefficients, most statisticians prefer to look at odds ratios, which are calculated by exponentiating the coefficients.
