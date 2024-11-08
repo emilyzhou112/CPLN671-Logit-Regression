@@ -16,7 +16,7 @@ editor_options:
     wrap: sentence
 ---
 
-Version 1.0 | First Created Nov 4, 2024 | Updated Nov 6, 2024
+Version 1.0 | First Created Nov 4, 2024 | Updated Nov 8, 2024
 
 Keywords: t-test, chi-square, multiple logistic regression, ROC, sensitivity, specificity, odds ratio
 
@@ -229,11 +229,11 @@ First, just like in OLS regression, logistic regression assumes that **observati
 
 Second, similar to OLS regression, logistic regression assumes that there is **no perfect multicollinearity** among the independent variables. Perfect multicollinearity means that one predictor is an exact linear combination of others, which can lead to instability in the model coefficients.
 
-Third, OLS regression assumes homoscedasticity, meaning the residuals (errors) have constant variance across all levels of the independent variables. In logistic regression, this assumption does not apply because the error terms are not normally distributed; instead, they follow a binomial distribution.
+Third, OLS regression assumes **homoscedasticity**, meaning the residuals (errors) have constant variance across all levels of the independent variables. In logistic regression, this assumption does not apply because the error terms are not normally distributed; instead, they follow a binomial distribution.
 
-Fourth, in OLS, we assume that the residuals are normally distributed. In logistic regression, however, the errors do not need to follow a normal distribution because the model uses a binomial distribution instead of normal distribution for the response variable.
+Fourth, in OLS, we assume that the residuals are **normally distributed**. In logistic regression, however, the errors do not need to follow a normal distribution because the model uses a binomial distribution instead of normal distribution for the response variable.
 
-And lastly, logistic regression does not assume a linear relationship between the dependent variable and each independent variable, unlike OLS regression. Instead, dependent variable must be binary. Logistic regression assumes that the log odds of the dependent variable being 1 is linearly related to each independent variable. This is a unique assumption of logistic regression that does not apply to OLS regression.
+And lastly, logistic regression does not assume a **linear relationship** between the dependent variable and each independent variable, unlike OLS regression. Instead, dependent variable must be binary. Logistic regression assumes that the log odds of the dependent variable being 1 is linearly related to each independent variable. This is a unique assumption of logistic regression that does not apply to OLS regression.
 
 As a special note, logistic regression requires a sample size of at least 50. This is because logistic regression uses Maximum Likelihood Estimation (MLE) to estimate regression coefficients, which requires a larger sample size than OLS regression. 
 
@@ -469,7 +469,7 @@ ggcorrplot(cor_matrix,
 
 </div>
 
-## Regression Analysis -- Emily (logit1), Ziyi (logit2)
+## Regression Analysis
 
 Our first logistic regression model includes all predictors and the results of it is presented below. 
 
@@ -640,10 +640,8 @@ cat(sprintf("AUC: %.3f\n", auc.value))
 
 ```
 
-*Finally, present the results of the logistic regression with the binary predictors only (i.e., without PCTBACHMOR and MEDHHINC). Compare the results of this regression with the results of the first regression: are there any predictors which are significant in the new model which weren’t significant in the original one, or vice versa? Be sure to also present the Akaike Information Criterion (AIC) for both models and indicate which model is better.*
+The second logistic regression model we ran includes only the binary predictors. In the first model, \( \text{PCTBACHMOR}\) and \( \text{MEDHHINC}\) were not statistically significant predictors of \( \text{DRINKING_D}\), as their \(p < 0.05\). However, in the reduced model, the exclusion of these two predictors did not lead to any new predictors becoming significant or any previously significant predictors becoming insignificant.
 
-The second logistic regression model we ran includes only the binary predictors. In the first model, \( \text{PCTBACHMOR}\) and \( \text{MEDHHINC}\) were not statistically significant predictors of \( \text{DRINKING_D}\), as their \(p < 0.05\). 
- 
 
 ```{r logit 2, message=FALSE, warning=FALSE}
 
@@ -652,6 +650,8 @@ logit2 <- glm(DRINKING_D ~ FATAL_OR_M + OVERTURNED + CELL_PHONE + SPEEDING + AGG
 summary(logit2)
 
 ```
+
+The odds ratios (OR) for the binary predictors in both models are very similar, suggesting that removing \( \text{PCTBACHMOR}\) and \( \text{MEDHHINC}\) had little impact on the estimated effects of the other variables.
 
 ```{r report result for second reg, warning=FALSE, message=FALSE}
 
@@ -666,6 +666,8 @@ final_output2 %>%
 
 
 ```
+
+The Akaike Information Criterion (AIC) for both models is \textbf{18360}. AIC is a measure of model quality that balances goodness of fit with model complexity (penalizing additional parameters). Since the AIC is the same in both models, neither model is superior in terms of fit. Given that the first model includes two additional predictors that are not statistically significant and does not improve the AIC, the reduced model (binary predictors only) is preferable for its simplicity. 
 
 ```{r comparison, message=FALSE, warning=FALSE}
 
