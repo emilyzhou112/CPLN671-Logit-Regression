@@ -471,7 +471,25 @@ ggcorrplot(cor_matrix,
 
 ## Regression Analysis -- Emily (logit1), Ziyi (logit2)
 
-First, present the results of the logistic regression with all predictors. Interpret the results. Be sure to comment on whether each predictor is significant, and interpret the odds ratio for each predictor
+Our first logistic regression model includes all predictors and the results of it is presented below. 
+
+**FATAL_OR_M**: The presence of a fatality or major injury significantly increases the odds of a drinking-related crash, with an odds ratio of 2.257 (95% CI: 1.910 to 2.653) and a highly significant \(p < 0.0001\), suggesting that these types of incidents more than double the odds of it there being a drunk driver. 
+
+**OVERTURNED**: Overturned vehicles significantly increase the likelihood of it being a drinking-related crash, with an odds ratio of 2.532 (95% CI: 2.035 to 3.122) and a highly significant \(p < 0.0001\). This result implies that overturned vehicles are strongly associated with a drinking-driver incurred crashes.
+
+**CELL_PHONE**: The use of a cellphone during a crash shows no statistically significant effect on the odds of a drinking-related crash (\(p = 0.881\)), with an odds ratio close to 1 (OR = 1.030, 95% CI: 0.684 to 1.488), indicating no significantly meaningful association.
+
+**SPEEDING**: Speeding is a highly significant predictor, with an odds ratio of 4.660 (95% CI: 3.974 to 5.450), and \(p < 0.0001\), indicating that crashes involving speeding are more than four times as likely to involve alcohol.
+
+**AGGRESSIVE**: Aggressive driving is associated with lower odds of a drinking-related crash, with an odds ratio of 0.551 (95% CI: 0.501 to 0.604), and \(p < 0.0001\), suggesting that aggressive driving incidents are less likely to involve alcohol.
+
+**DRIVER1617**: Incidents involving drivers aged 16-17 are significantly less likely to be drinking-related (OR = 0.278, 95% CI: 0.148 to 0.471), with a significant \(p < 0.0001\), possibly reflecting the influence of drinking laws for younger drivers.
+
+**DRIVER65PLUS**: Incidents involving drivers aged 65 and above also show significantly lower odds of being drinking-related, with an odds ratio of 0.461 (95% CI: 0.380 to 0.553), and \(p < 0.0001\), indicating that older drivers are less likely to be involved in alcohol-related crashes.
+
+**PCTBACHMOR**: The percentage of people with a bachelor’s degree or higher in the area does not significantly impact the odds of a drinking-related crash (\(p = 0.775\)) that occur there, with an odds ratio near 1 (OR = 1.000, 95% CI: 0.997 to 1.002).
+
+**MEDHHINC**: Median household income has a very slight, statistically significant positive effect on the likelihood of a drinking-related crash there, with \(p = 0.036\), but the effect size is negligible, as shown by the confidence interval limits around 1 (OR = 1.000).
 
 
 ```{r logit 1, message=FALSE, warning=FALSE}
@@ -482,6 +500,7 @@ summary(logit)
 
 ```
 
+As a quick summary, predictor that are highly significant \(p < 0.001\) are **FATAL_OR_M**, **OVERTURNED**, **SPEEDING**, **AGGRESSIVE**, **DRIVER1617**, and **DRIVER65PLUS**. Among which those that increase the odds of an incident that includes drunk driving are **FATAL_OR_M**, **OVERTURNED**, and **SPEEDING**. On the other hand, predictors that are not significant are **CELL_PHONE** and **PCTBACHMOR**. The predictor **MEDHHINC** is marginally significant (\(p = 0.036\)).
 
 ```{r report result, warning=FALSE, message=FALSE}
 
@@ -496,7 +515,7 @@ final_output %>%
 
 ```
 
-Present the specificity, sensitivity and the misclassification rates for the different probability cut-offs. Indicate the cut-offs which yield the lowest/highest misclassification rates.
+The table below presents the specificity, sensitivity, and misclassification rates for various probability cut-offs in predicting the likelihood of a drinking-related crash. The lowest and highest misclassification rates highlight the effectiveness of each cut-off.
 
 ```{r roc measures, message=FALSE, warning=FALSE, include=FALSE}
 
@@ -507,6 +526,9 @@ roc <- as.data.frame(a)
 
 ```
 
+The probability cut-off of 0.50 yields the lowest misclassification rate of 0.057. At this threshold, specificity is maximized at 1.000, but sensitivity is very low (0.002), meaning that the model captures very few true positives, sacrificing sensitivity for high specificity.
+
+The highest misclassification rate occurs at the cut-off of 0.02 with a rate of 0.889. At this threshold, sensitivity is high (0.984), capturing nearly all true positives, but specificity is very low (0.058), resulting in a high rate of false positives.
 
 ```{r calculate measures, message=FALSE, warning=FALSE}
 
@@ -551,8 +573,7 @@ results %>%
 ```
 
 
-Present the ROC curve and comment on the optimal cut-off rate that was selected by minimizing the distance from the upper left corner of the ROC curve.
-Compare this cut-off rate with the optimal rate in 3.c.ii above. Keep in mind that in 3.c.ii, we’re looking at minimum mis-classification rates, and here, we’re looking at simultaneously minimizing both sensitivity and specificity.
+We plotted the ROC curve to show the tradeoff between sensitivity (True Positive Rate) and specificity (1 - False Positive Rate) across various probability cut-offs for the logistic regression model. An ideal model would reach the top-left corner of the ROC space (sensitivity = 1, specificity = 1), which would mean perfect discrimination between the two classes. Our ROC curve, however, lies beneath this ideal point, indicating trade-offs between sensitivity and specificity at each cut-off.
 
 <div style="text-align: center;">
 
@@ -574,6 +595,10 @@ ggplot(roc, aes(d = labels, m = predictions)) +
   )
 ```
 </div>
+
+Using the function `opt.cut`, we calculated the optimal cut-off by minimizing the Euclidean distance from the ROC curve to the point (0, 1) — the top-left corner of the ROC space, which represents perfect sensitivity and specificity. This cut-off of 0.064 provides a balanced approach, achieving a sensitivity of 0.661 and specificity of 0.545.
+
+In the above section, the optimal cut-off selected based on the minimum misclassification rate was 0.50, which yielded a misclassification rate of 0.057. This threshold focused on reducing the overall number of misclassified observations, prioritizing high specificity (1.000) but resulting in low sensitivity (0.002). In contrast, the cut-off of 0.064 identified through the ROC analysis aims to balance both sensitivity and specificity, achieving a moderate level for each metric rather than prioritizing one over the other. This cut-off might be more suitable for applications where both true positive and true negative rates are equally important. 
 
 ```{r measure optimal cut-off, message=FALSE, warning=FALSE}
 
@@ -604,7 +629,8 @@ optimal_cutoffs_df %>%
 
 ```
 
-Also present and comment on the area under the ROC curve. What does it tell us about our model?
+The Area Under the ROC Curve (AUC) for our model is 0.640. An AUC of 0.640 suggests that the model has poor discrimination (generally, a model with an AUC between 0.6 and 0.7 is considered to have poor discrimination). Specifically, the AUC value means that if we randomly select one positive case and one negative case, the model has a 64% chance of correctly ranking the positive case higher in terms of predicted probability than the negative case. In practical terms, this indicates that while the model is able to distinguish between crashes with and without alcohol involvement to some extent, its performance is limited and may misclassify a substantial number of observations. 
+
 
 ```{r auc, message=FALSE, warning=FALSE}
 
@@ -614,11 +640,10 @@ cat(sprintf("AUC: %.3f\n", auc.value))
 
 ```
 
-Finally, present the results of the logistic regression with the binary predictors only (i.e., without PCTBACHMOR and MEDHHINC). Compare the results of this regression with the results of the first regression: are there any predictors which are significant in the new model which weren’t significant in the original one, or vice versa?
-Be sure to also present the Akaike Information Criterion (AIC) for both models and indicate which model is better.
+*Finally, present the results of the logistic regression with the binary predictors only (i.e., without PCTBACHMOR and MEDHHINC). Compare the results of this regression with the results of the first regression: are there any predictors which are significant in the new model which weren’t significant in the original one, or vice versa? Be sure to also present the Akaike Information Criterion (AIC) for both models and indicate which model is better.*
 
-
-
+The second logistic regression model we ran includes only the binary predictors. In the first model, \( \text{PCTBACHMOR}\) and \( \text{MEDHHINC}\) were not statistically significant predictors of \( \text{DRINKING_D}\), as their \(p < 0.05\). 
+ 
 
 ```{r logit 2, message=FALSE, warning=FALSE}
 
