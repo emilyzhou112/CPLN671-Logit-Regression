@@ -16,7 +16,7 @@ editor_options:
     wrap: sentence
 ---
 
-Version 1.0 | First Created Nov 4, 2024 | Updated Nov 8, 2024
+Version 1.0 | First Created Nov 4, 2024 | Updated Nov 9, 2024
 
 Keywords: t-test, chi-square, multiple logistic regression, ROC, sensitivity, specificity, odds ratio
 
