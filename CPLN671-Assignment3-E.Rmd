@@ -432,6 +432,7 @@ For PCTBACHMOR (the percentage of individuals with a bachelor’s degree or more
 Similarly, for MEDHHINC (median household income), the t-test produces a p-value of 0.160, which also exceeds the 0.05 threshold. Although there is a small difference in mean income between the two groups, this difference is not statistically significant. Consequently, we again fail to reject the null hypothesis, implying that median household income is not significantly associated with alcohol involvement in crashes.
 
 To conclude, the t-test results demonstrate that neither PCTBACHMOR nor MEDHHINC shows a significant association with alcohol involvement in crashes. Thus, we cannot conclude that socio-economic factors, as measured by educational attainment and income levels, have a meaningful impact on the likelihood of alcohol involvement in traffic incidents. This lack of significance suggests that other variables, such as driver behavior or crash-specific characteristics, may be more relevant in understanding alcohol-related crashes.
+
 ```{r tabulation cont t-test, message=FALSE, warning=FALSE}
 
 pval_pctbachmor <- t.test(crashes$PCTBACHMOR ~ crashes$DRINKING_D)$p.value

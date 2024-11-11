@@ -54,21 +54,18 @@ crashes <- read.csv(here("data", "LogisticRegressionData.csv"))
 ```
 
 
-# Introduction -- Ziyi
+# Introduction
 
-*State the problem, the importance of the problem, and the setting of the analysis (Philadelphia)*
-*Speculate as to why the predictors we’re using might be associated with the response variable.*
-*Indicate that you will be using R to run logistic regression for the analysis.*
-
-Alcohol-impaired driving is a significant public safety issue in the United States, with nearly 30 fatalities each day attributed to it, along with countless injuries and an annual economic burden exceeding $59 billion. Understand the back reason of drunk driving, and what factors can be associated with drunk driving is very essensial to tackling this problem and ease the safety issue. Here we are using Philadelphia as our study area.
+Alcohol-impaired driving is a significant public safety issue in the United States, with nearly 30 fatalities each day attributed to it, along with countless injuries and an annual economic burden exceeding $59 billion. Understand the back reason of drunk driving, and what factors can be associated with drunk driving is essential to tackling this problem and ease the safety issue. Here we are using Philadelphia as our study area.
 
 In this analysis, we aim to identify predictors associated with drunk driving. Here, our dependent variable is whether or not the driver was drunk, and we use several independent variables to predict this outcome. These predictors include factors such as whether the crash resulted in a fatality or major injury, involved an overturned vehicle, or involved a driver using a cell phone. Additional behavioral factors like speeding, aggressive driving, and the presence of an immature driver (defined as at least one driver aged 16 or 17) or a senior driver (defined as at least one driver aged 65 or older) are also included. Furthermore, socio-economic indicators from the crash location, such as the percentage of individuals with at least a bachelor’s degree and the median household income within the census block group, are considered. By analyzing these variables, we aim to better understand the factors that correlate with drunk driving incidents.
 
 Some of the predictors in this analysis include crashes involving fatalities or major injuries, overturned vehicles, cell phone use, speeding, and aggressive driving. These factors may be associated with drunk driving because they reflect behaviors and outcomes often connected to the impaired judgment and slowed reaction times that result from alcohol consumption. For instance, alcohol impairment increases the likelihood of severe crashes resulting in fatalities or major injuries, as impaired drivers are less able to respond to sudden changes on the road. Overturned vehicles are also more common in drunk-driving incidents, as alcohol can lead to a loss of vehicle control. Additionally, cell phone use, which is already a risky behavior, becomes even more dangerous when combined with alcohol impairment, as drunk drivers may be more prone to engage in distractions. Speeding is another common factor, as alcohol reduces inhibitions, leading drivers to ignore speed limits and traffic laws. Aggressive driving is also heightened by alcohol, which can increase aggression and lead to risky behaviors like tailgating or cutting off other vehicles. Altogether, these predictors capture patterns of behavior that are more likely when alcohol impairs a driver’s mental and physical abilities, leading to a greater likelihood of severe accidents.
 
-These predictors, *DRIVER1617* (crash involving a driver aged 16 or 17) and *DRIVER65PLUS* (crash involving a driver aged 65 or older), might be associated with drunk driving due to age-related factors in behavior and ability. Younger drivers, especially those aged 16 or 17, may be more prone to risky behaviors, including experimenting with alcohol, due to lower experience levels and a tendency toward risk-taking. This age group may lack the experience and judgment to handle alcohol's effects, making them more susceptible to involvement in drunk-driving crashes. On the other hand, older drivers, represented by DRIVER65PLUS, may also be affected by alcohol impairment differently. While they may not engage in risky behavior as frequently, alcohol can significantly impair their reaction times and decision-making abilities, which may already be slower due to age. This age group might also be more vulnerable to the effects of even small amounts of alcohol, leading to a higher risk of accidents when impaired. Together, these predictors help capture how different age groups may be uniquely vulnerable to the risks associated with drunk driving.
+These predictors, \( \text{DRIVER1617}\) (crash involving a driver aged 16 or 17) and \( \text{DRIVER65PLUS}\)
+ (crash involving a driver aged 65 or older), might be associated with drunk driving due to age-related factors in behavior and ability. Younger drivers, especially those aged 16 or 17, may be more prone to risky behaviors, including experimenting with alcohol, due to lower experience levels and a tendency toward risk-taking. This age group may lack the experience and judgment to handle alcohol's effects, making them more susceptible to involvement in drunk-driving crashes. On the other hand, older drivers, represented by DRIVER65PLUS, may also be affected by alcohol impairment differently. While they may not engage in risky behavior as frequently, alcohol can significantly impair their reaction times and decision-making abilities, which may already be slower due to age. This age group might also be more vulnerable to the effects of even small amounts of alcohol, leading to a higher risk of accidents when impaired. Together, these predictors help capture how different age groups may be uniquely vulnerable to the risks associated with drunk driving.
 
-The predictors *PCTBACHMOR* (the percentage of individuals aged 25 or older with at least a bachelor’s degree) and *MEDHHINC* (median household income) might be associated with drunk driving as they reflect socio-economic characteristics of the area where crashes occur. Areas with higher education levels, indicated by a greater percentage of individuals with bachelor’s degrees, may have lower instances of drunk driving due to increased awareness of the risks associated with impaired driving and potentially stronger adherence to safety practices. Conversely, areas with lower education levels might see higher rates of alcohol-related incidents due to various socio-economic stressors or a lack of access to alternative transportation options. Similarly, median household income can play a role in influencing drunk driving patterns. Lower-income areas may experience higher rates of alcohol-impaired driving if public transportation options are limited, making driving the primary mode of transport regardless of impairment. On the other hand, higher-income areas might have better access to ridesharing services or designated driver options, potentially reducing the likelihood of drunk driving. By examining these socio-economic indicators, we can gain insight into how community characteristics might influence the prevalence of drunk driving incidents.
+The predictors \( \text{PCTBACHMOR}\) (the percentage of individuals aged 25 or older with at least a bachelor’s degree) and \( \text{MEDHHINC}\) (median household income) might be associated with drunk driving as they reflect socio-economic characteristics of the area where crashes occur. Areas with higher education levels, indicated by a greater percentage of individuals with bachelor’s degrees, may have lower instances of drunk driving due to increased awareness of the risks associated with impaired driving and potentially stronger adherence to safety practices. Conversely, areas with lower education levels might see higher rates of alcohol-related incidents due to various socio-economic stressors or a lack of access to alternative transportation options. Similarly, median household income can play a role in influencing drunk driving patterns. Lower-income areas may experience higher rates of alcohol-impaired driving if public transportation options are limited, making driving the primary mode of transport regardless of impairment. On the other hand, higher-income areas might have better access to ridesharing services or designated driver options, potentially reducing the likelihood of drunk driving. By examining these socio-economic indicators, we can gain insight into how community characteristics might influence the prevalence of drunk driving incidents.
 
 To conduct this analysis, we will use logistic regression in R to evaluate the relationship between these predictors and the likelihood of drunk driving. 
 
@@ -270,6 +267,7 @@ For continuous predictors, we calculate the means of the continuous predictors f
 $$
 H_0: \text{There is no difference in the means of the continuous predictor for crashes that involved alcohol and those that did not.}
 $$
+
 The alternative hypothesis is that: 
 
 $$
@@ -279,9 +277,10 @@ $$
 
 # Results 
 
-## Exploratory Analysis -- Emma
+## Exploratory Analysis
 
-Present the tabulation of the dependent variable and comment on the number and proportion of crashes that involves drunk driving.
+We begin our analysis by examining the distribution of the dependent variable, \( \text{DRINKING_D} \). The tabulation shows that the majority of crashes do not involve alcohol impairment. The tabulation of the dependent variable, DRINKING_D, shows that the majority of crashes do not involve alcohol impairment. Specifically, 94.3% of crashes (proportion = 0.943) are categorized as not involving drunk driving, while only 5.7% of crashes (proportion = 0.057) involve a drunk driver. This indicates that alcohol-related crashes constitute a relatively small proportion of the overall crash data. The skewed distribution of the dependent variable suggests that drunk driving incidents are relatively rare compared to non-alcohol-related crashes, which is an important consideration for model performance and evaluation, as it may impact the model's ability to accurately predict alcohol involvement.
+
 
 ```{r depedent crosstabulation, message=FALSE, warning=FALSE}
 
@@ -294,7 +293,8 @@ deptab %>%
 
 ```
 
-Present the cross-tabulation of the dependent variable with each of the binary predictors (table on p. 4 above).
+
+The table below provides a cross-tabulation of the dependent variable with each of the binary predictors. It shows that among crashes without alcohol involvement, 2.89% resulted in fatality or major injury. Yet, the percentage is higher at 7.57% when alcohol is involved. While 1.50% of non-alcohol-related crashes involved an overturned vehicle, 4.43% of alcohol-related crashes did. Speeding is involved in 3.08% of non-alcohol-related crashes and 10.46% of alcohol-related crashes. Similarly, aggressive driving is more common in alcohol-related crashes (36.86%) than in non-alcohol-related crashes (45.31%). As for driving age, 1.65% of non-alcohol-related crashes involve very young drivers, while this drops to 0.48% in alcohol-related crashes. 10.37% of non-alcohol-related crashes involve older drivers, compared to 4.79% of alcohol-related crashes. However, cell phone use is similar across both alcohol-involved and non-alcohol-involved crashes. 
 
 
 ```{r crosstabulation, message=FALSE, warning=FALSE, echo=TRUE, results='hide'}
@@ -347,25 +347,27 @@ colnames(tabulation) <- c("", "N", "%", "N ", "% ", "N  ")
 ```
 
 
-
 ```{r tabulation table, message=FALSE, warning=FALSE}
 
 tabulation %>%
   kable("html", escape = FALSE, align = "lccccc") %>%
   kable_styling(full_width = FALSE, position = "center", fixed_thead = TRUE) %>%
-  column_spec(1, width = "30em") %>%    # Wider first column for descriptions
+  column_spec(1, width = "30em") %>%    
   column_spec(2, width = "5em") %>%
   column_spec(3, width = "5em") %>%
   column_spec(4, width = "5em") %>%
   column_spec(5, width = "5em") %>%
   column_spec(6, width = "5em") %>%
-  add_header_above(c(" " = 1, "DRINKING_D = 0" = 2, "DRINKING_D = 1" = 2, " " = 1)) %>% 
-  add_header_above(c(" " = 1, "No Alcohol" = 2, "Alcohol Involved" = 2, "Total" = 1))
+  add_header_above(c(" " = 1, "DRINKING_D = 1" = 2, "DRINKING_D = 0" = 2, " " = 1)) %>% 
+  add_header_above(c(" " = 1, "Alcohol Involved" = 2, "No Alcohol" = 2, "Total" = 1))
 
 ```
 
-In the table, add (an) extra column(s) which presents the results of the Chi-Square test (you may present the p-value only, or the Chi-Square statistic, the degrees of freedom and the p-value).
-Discuss whether the Chi-Square test shows that there is a significant association between the dependent variable and each of the binary predictors (i.e., can you reject the Null Hypothesis?)
+The results of the Chi-Square test indicate significant associations between most of the binary predictors and alcohol involvement in crashes, with the exception of \( \text{CELL_PHONE} \). For example, \( \text{FATAL_OR_M} \)
+showed a highly significant association, with a Chi-Square statistic of 167.56 and a highly significant \(p < 0.0001\), suggesting that severe crashes are more likely to involve alcohol. Likewise, \( \text{OVERTURNED} \) also had a significant association (Chi-Square = 122.79, df =1) with \(p < 0.0001\), indicating that overturned vehicles are more frequently associated with alcohol impairment. The remaining predictors, \( \text{SPEEDING} \), \( \text{AGGRESSIVE} \), \( \text{DRIVER1617} \), and \(\text{DRIVER65PLUS} \) also showed significant associations with alcohol involvement, with Chi-Square statistics ranging from 20.45 to 376.78 and \(p < 0.0001\). These results suggest that crashes involving fatalities, overturned vehicles, speeding, aggressive driving, and certain driver age groups are more likely to involve alcohol impairment. Therefore, we could reject the null hypothesis for these predictors and conclude that they are significantly associated with alcohol involvement in crashes.
+
+However, the predictor \( \text{CELL_PHONE} \) did not show a significant association with alcohol involvement, with a Chi-Square statistic of 0.16 and \(p > 0.5\). This suggests that cell phone use is not strongly associated with alcohol-related crashes in this dataset. We can retain the null hypothesis for this predictor and conclude that there is no significant association between cell phone use and alcohol involvement in crashes.
+
 
 ```{r tabulation table chi-sq, message=FALSE, warning=FALSE}
 
@@ -394,7 +396,10 @@ tabulation %>%
   add_header_above(c(" " = 1, "No Alcohol" = 2, "Alcohol Involved" = 2, "Total" = 1, "χ2 Test" = 2))
 ```
 
-Present the means of the continuous predictors for both values of the dependent variable (table on p. 5).
+
+We also looked at the mean and standard deviation of the continuous predictors, \( \text{PCTBACHMOR} \) and \( \text{MEDHHINC} \), for crashes involving and not involving alcohol. The mean percentage of people with a bachelor’s degree or more is identical for both non-alcohol and alcohol-involved crashes, at 16.6%. The standard deviation is slightly higher in the alcohol-involved group (18.7 vs. 18.2). This suggests that educational attainment, as measured by the percentage of individuals with a bachelor’s degree or more, does not vary significantly between areas where crashes involve alcohol and those where they do not.The median household income is slightly higher in alcohol-involved crashes with a mean of \$31,998.8, compared to \$31,483.1 in non-alcohol-related crashes. The standard deviation is also higher for the alcohol-involved group (17,810.5 vs. 16,930.1). This also means that income level may not be a strong differentiator for alcohol involvement in crashes.
+
+
 
 ```{r tabulation cont, message=FALSE, warning=FALSE}
 
@@ -420,10 +425,13 @@ tabulation_cont %>%
   add_header_above(c(" " = 1, "No Alcohol" = 2, "Alcohol Involved" = 2))
 ```
 
+The independent samples t-test results for the continuous predictors provide more insight into whether these socio-economic factors are significantly associated with alcohol involvement in crashes.
 
-In the table, add an extra column which presents the results of the independent samples t-test (you may present the p-value only, or the t-statistic, the degrees of freedom and the p-value).
-Discuss whether the t-test shows that there is a significant association between the dependent variable and each of the
-continuous predictors (i.e., can you reject the Null Hypothesis?).
+For \( \text{PCTBACHMOR} \), the t-test yields a p-value of 0.914, which is far greater than the conventional significance level of 0.05. This indicates that there is no statistically significant difference in the mean educational attainment between crashes involving alcohol and those that do not. Therefore, we fail to reject the null hypothesis, suggesting that educational attainment does not have a significant association with alcohol involvement in crashes.
+
+Similarly, for \( \text{MEDHHINC} \), the t-test produces a p-value of 0.160, which also exceeds the 0.05 threshold. Although there is a small difference in mean income between the two groups, this difference is not statistically significant. Consequently, we again fail to reject the null hypothesis, implying that median household income is not significantly associated with alcohol involvement in crashes.
+
+As such, the t-test results demonstrate that neither \( \text{PCTBACHMOR} \) nor \( \text{MEDHHINC} \) shows a significant association with alcohol involvement in crashes. Thus, we cannot conclude that socio-economic factors, as measured by educational attainment and income levels, have a meaningful impact on the likelihood of alcohol involvement in traffic incidents. This lack of significance suggests that other variables, such as driver behavior or crash-specific characteristics, may be more relevant in understanding alcohol-related crashes.
 
 ```{r tabulation cont t-test, message=FALSE, warning=FALSE}
 
@@ -438,13 +446,9 @@ tabulation_cont %>%
   add_header_above(c(" " = 1, "No Alcohol" = 2, "Alcohol Involved" = 2, " " = 1))
 ```
 
-## Regression Assumptions -- Ziyi
+## Regression Assumptions
 
-*Comment on which logistic regression assumptions are met and which ones are violated for the problem at hand.*
-
-Based on the correlation matrix and prior information, most logistic regression assumptions for analyzing drunk driving crashes are met. The binary outcome variable, **DRINKING_D**, fulfills the requirement for a binary dependent variable, and the independence of observations is largely satisfied, as each crash is considered a separate event. The assumption of no perfect multicollinearity is also met, as the correlation matrix shows low pairwise correlations between predictor variables, with the highest being 0.48 between **% with Bachelor’s Degree** and **Median Household Income**, and a mild correlation (0.21) between **Crash Involved Speeding Car** and **Crash Involved Aggressive Driving**. These correlations are not high enough to cause instability in the model. Additionally, the large sample size of over 43,000 observations ensures stable estimates, meeting the assumption for sufficient sample size. However, there is a potential violation in the assumption of linearity of log odds for continuous predictors, as high p-values in t-tests suggest weak or non-linear relationships between **% with Bachelor’s Degree** and **Median Household Income** and the outcome variable. 
-
-*In particular, be sure to present the matrix showing the pairwise Pearson correlations for all the binary and continuous predictors.Comment on any potential limitations of using Pearson correlations to measure the associations between binary predictors. State whether there is evidence of multicollinearity, and remind the reader how you’re defining multicollinearity.*
+Based on the correlation matrix and prior information, most logistic regression assumptions for analyzing drunk driving crashes are met. The binary outcome variable, \( \text{DRINKING_D} \), fulfills the requirement for a binary dependent variable, and the independence of observations is largely satisfied, as each crash is considered a separate event. The assumption of no perfect multicollinearity is also met, as the correlation matrix shows low pairwise correlations between predictor variables, with the highest being 0.48 between **% with Bachelor’s Degree** and **Median Household Income**, and a mild correlation (0.21) between **Crash Involved Speeding Car** and **Crash Involved Aggressive Driving**. These correlations are not high enough to cause instability in the model. Additionally, the large sample size of over 43,000 observations ensures stable estimates, meeting the assumption for sufficient sample size. However, there is a potential violation in the assumption of linearity of log odds for continuous predictors, as high p-values in t-tests suggest weak or non-linear relationships between **% with Bachelor’s Degree** and **Median Household Income** and the outcome variable. 
 
 Using Pearson correlations to measure associations between binary predictors can have limitations, as Pearson’s correlation coefficient is most appropriate for continuous, normally distributed data. Binary variables, which only take on two values (e.g., 0 and 1), can lead to less meaningful or interpretable correlation values, as the measure does not fully capture the potential association between two binary variables. Additionally, Pearson correlations may underestimate or fail to reflect non-linear relationships that could exist among binary predictors.
 
@@ -700,16 +704,14 @@ aic_table %>%
 
 # Discussion -- Emma
 
-In a couple sentences, recap what you did in the paper, and your findings.
+In this study, a logistic regression analysis was conducted to examine factors associated with alcohol involvement in vehicular crashes in Philadelphia. The analysis included a variety of predictors, encompassing crash characteristics (such as whether the crash resulted in a fatality or major injury, involved an overturned vehicle, or involved cell phone use), driver behaviors (including speeding, aggressive driving, and the age of drivers involved), and socio-economic variables from the crash locations (such as the percentage of individuals with a bachelor’s degree or higher and median household income). The primary objective was to identify significant predictors of alcohol-related crashes and gain insight into the relationships between these factors and the likelihood of drunk driving incidents.
 
-Which variables are strong predictors of crashes that involve drunk driving? Which variables aren’t associated with the dependent variable?
+( \text{SPEEDING} \). For example, \( \text{MEDHHINC} \)
 
-Are the results surprising? Discuss, and mention whether the variables you expect to be significant actually are significant, and if so, whether the relationships with the dependent variable are in the direction you would
-expect.
+The results indicate that several crash characteristics and driver behaviors are significant predictors of alcohol involvement. Specifically, \( \text{FATAL_OR_M} \) (whether the crash resulted in a fatality or major injury), \(\text{OVERTURNED} \) (whether the crash involved an overturned vehicle), and ( \text{SPEEDING} \) were all positively and significantly associated with alcohol involvement. For instance, crashes involving speeding were found to be more than four times as likely to involve a drunk driver, highlighting the strong connection between risky driving behaviors and alcohol impairment. In contrast, ( \text{CELL_PHONE} \) (use of a cell phone during the crash) and \( \text{PCTBACHMOR} \) (percentage of individuals with a bachelor’s degree or higher) did not show a significant association with alcohol involvement, suggesting that these factors do not substantially influence the likelihood of a crash involving alcohol. \( \text{MEDHHINC} \) (median household income) demonstrated a marginally significant effect, but the impact was negligible, indicating that income levels do not play a meaningful role in alcohol-related crash risk.
 
-Is logistic regression appropriate here? In other words, would the modeling rare events methods proposed by Paul Allison be more
-appropriate here?
+The findings are somewhat surprising. While the significance of variables like SPEEDING and \( \text{FATAL_OR_M} \) is consistent with prior expectations, the lack of a significant association for ( \text{CELL_PHONE} \) use is unexpected. It was anticipated that cell phone use, an already high-risk behavior, would have an amplified effect when combined with alcohol impairment, but the data did not support this assumption. Similarly, the limited impact of socio-economic variables was unforeseen. Although it was hypothesized that areas with lower educational attainment or income levels might experience higher rates of alcohol-related crashes due to various socio-economic stressors, the analysis did not find meaningful associations. Nevertheless, the significant predictors, such as speeding and crash severity, align with expectations, reinforcing the understanding that alcohol impairment exacerbates the risk of severe and reckless driving behaviors.
 
-Hint: look at the # and % of cases with values of ‘1’ for the dependent variable.
+The application of logistic regression is appropriate in this context, given its suitability for modeling a binary dependent variable. However, considering the rarity of the event of interest—only 5.7% of crashes involved alcohol—there may be limitations to this approach. Methods for modeling rare events, as proposed by Paul Allison, such as penalized likelihood approaches, could be more effective. These methods may yield more reliable and efficient estimates when dealing with infrequent outcomes, addressing potential biases and enhancing the model's performance.
 
-What are some limitations of the analysis? Discuss.
+This analysis has several limitations. The relatively small proportion of alcohol-involved crashes may affect the robustness and stability of the model estimates. Employing rare event modeling techniques could improve the reliability of the findings. Additionally, unobserved confounding variables, such as time of day, road conditions, or proximity to alcohol-serving establishments, may influence crash outcomes but were not included in the model. The binary nature of many predictors may also oversimplify complex driving behaviors or socio-economic conditions, limiting the model's ability to capture nuances. Finally, while socio-economic factors did not emerge as significant predictors, this does not rule out their potential importance in a broader context or when analyzed with more granular data. Future research could address these limitations by incorporating additional contextual variables, utilizing alternative modeling methods, and expanding the analysis to other geographic areas to validate and extend these findings.
